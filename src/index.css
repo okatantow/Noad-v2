@@ -1,4 +1,139 @@
 @import "tailwindcss";
+@plugin 'tailwind-scrollbar';
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+@font-face {
+  font-family: Ailerons-Typeface;
+  src: url(assets/fonts/Ailerons-Typeface.otf);
+}
+
+@font-face {
+  font-family: Courier-Prime;
+  src: url(assets/fonts/courier-prime/CourierPrime.woff);
+}
+
+@font-face {
+  font-family: Overpass-Mono;
+  src: url(assets/fonts/overpass-mono/OverpassMono-Regular.ttf);
+}
+
+
+  .my-sidebar-color{
+    @apply text-[#000]
+  }
+
+.my-sidebar-bg{
+    @apply bg-[#dbe5ef]
+  }
+  .my-theme-bg-light{
+    @apply bg-[#5ac4fe]
+  }
+   .my-theme-bg-deep{
+    @apply bg-[#4b54bb]
+  }
+  
+  .my-sidebar-link{
+    /* @apply  hover:text-[#4b54bb]  */
+
+  }
+  .my-font-family-evogria{
+    font-family: 'Evogria', sans-serif;
+  }
+  .my-font-family-ailerons{
+    font-family: 'ailerons-typeface', sans-serif;
+  }
+  .my-font-family-courier-prime{
+    font-family: 'Courier-Prime', sans-serif;
+  }
+  .my-font-family-overpass-mono{
+    font-family: 'Overpass-Mono', sans-serif;
+  }
+  .my-red-bg{
+    @apply bg-blue-500 text-white
+  }
+  .my-black-bg{
+    @apply bg-[#f5f5f5]
+  }
+  .my-input{
+    @apply bg-[#2a2a2a] text-white p-2  border border-[#444] focus:outline-none focus:ring-2 focus:ring-green-900
+  }
+  .my-input2{
+    @apply  p-2 bg-[#090a0c] border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#060709]
+  }
+
+  .my-btn-cancel{
+    @apply text-white hover:text-white px-3 py-1 text-sm border border-[#333] rounded-lg bg-[#2a2a2a] hover:bg-[#3a3a3a]
+
+  }
+
+  .my-btn-green{
+    @apply  bg-[#123123] text-white py-2 font-semibold hover:bg-[#165b44] transition-colors
+
+  }
+
+  .my-btn-blue{
+    @apply  bg-blue-600 text-white py-2 font-semibold hover:bg-blue-700 transition-colors
+
+  }
+
+  .my-btn-green2{
+    @apply  inline-flex items-center px-4 py-2 bg-green-600 text-white  hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed
+
+  }
+
+
+
+  .my-input{
+    @apply text-sm text-gray-400 mb-1
+  }
+
+  .my-gradient-bg{
+    @apply  bg-gradient-to-b from-[#080808] to-[#1c1b1a]
+  }
+
+  .my-label{
+    @apply  text-[#858C8E]
+  }
+
+  .my-scrollbar{
+    @apply  overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900
+  }
+
+
+
+
+.swal-modal
+{
+
+    background-color: #3F1F2F;
+
+    border-radius: 0px;
+
+ }
+ .swal-button {
+  border-radius: 0px;
+ }
+ .swal-title,.swal-text{
+  color: #f5f5f5;
+ }
+
+
+
+.Toastify__toast-theme--light {
+   /* background-color: #1F2F3F !important; */
+   background-color: #3F1F2F !important;
+   /* background-color: #121212 !important; */
+  color: #fff !important;
+  border-radius: 0 !important;
+  /* border: 1px solid #fff; */
+}
+
+.Toastify__close-button--light {
+  color: #fff !important;
+  opacity: 0.1;
+}
 
 
 
