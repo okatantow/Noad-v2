@@ -53,6 +53,12 @@ code {
   .my-red-bg{
     @apply bg-blue-500 text-white
   }
+  .sublink-hover{
+   @apply hover:text-white hover:bg-[#5ac4fe]
+  }
+  .sublink-active{
+   @apply text-white bg-blue-500
+  }
   .my-black-bg{
     @apply bg-[#f5f5f5]
   }
@@ -122,12 +128,9 @@ code {
 
 
 .Toastify__toast-theme--light {
-   /* background-color: #1F2F3F !important; */
    background-color: #3F1F2F !important;
-   /* background-color: #121212 !important; */
   color: #fff !important;
   border-radius: 0 !important;
-  /* border: 1px solid #fff; */
 }
 
 .Toastify__close-button--light {

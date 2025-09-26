@@ -13,6 +13,8 @@ import NominalLedgerPage from "./pages/noninal-ledger/NominalLedgerPage";
 import OverDraftPage from "./pages/overdraft/OverdraftPage";
 import BankTransactionPage from "./pages/bank-transactions/BankTransactionPage";
 import TreasuryPage from "./pages/treasury/TreasuryPage";
+import SystemPage from "./pages/system/SystemPage";
+import SetupPage from "./pages/system/SetupPage";
 
 const dashboardRoutes = [
   {
@@ -100,6 +102,14 @@ const dashboardRoutes = [
     name: "Bank Transaction",
     icon: "nc-icon nc-pin-3",
     component: BankTransactionPage,
+    layout: "/pages",
+    mobileRestricted: true,
+  },
+  {
+    path: "/setup",
+    name: "Setup",
+    icon: "nc-icon nc-pin-3",
+    component: SetupPage,
     layout: "/pages",
     mobileRestricted: true,
   },

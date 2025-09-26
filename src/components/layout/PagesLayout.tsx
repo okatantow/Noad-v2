@@ -112,7 +112,7 @@ export const PagesLayout: React.FC<AppLayoutProps> = () => {
   };
 
   useEffect(() => {
-    // callToast(toastData.type, toastData.msg);
+    callToast(toastData.type, toastData.msg);
   }, [onToast]);
 
   const getRoutes = (routes: AppRoute[]): ReactElement[] => {

@@ -244,6 +244,22 @@ const Sidebar: React.FC<SidebarProps> = ({
               Accounting
             </span>
           </NavLink>
+          <NavLink
+            to='/pages/setup'
+            className={`
+              ${activeRoute('pages/setup')}
+              group mt-1 hidden md:flex items-start bg-[#fff] border-gray-700 px-3 py-2  shadow hover:my-red-bg hover:no-underline
+            `}
+            onClick={toggleSidebar}
+            style={{ textDecoration: "none" }}
+          >
+            <div className="mr-2 transition-colors">
+              <FontAwesomeIcon icon={faChartBar} className="h-7 w-7 text-[#5ac4fe] font-bold" />
+            </div>
+            <span className=' my-sidebar-link  transition-colors my-font-family-overpass-mono'>
+              System Builder
+            </span>
+          </NavLink>
         </div>
       </div>
     </>
