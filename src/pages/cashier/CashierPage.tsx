@@ -3,7 +3,7 @@ import  Breadcrumb  from "../../components/layout/Breadcrumb";
 import { useState } from "react";
 
 export default function CashierPage() {
-  const [currentPage, setCurrentPage] = useState("users");
+  const [currentPage, setCurrentPage] = useState("cashier");
   
     const toggleCurrentPage = (page:any) => {
       setCurrentPage(page);
@@ -15,7 +15,7 @@ export default function CashierPage() {
         <div className='flex items-start space-x-8'>
        
         </div>
-        <Breadcrumb items={["System Manager", "Customer Details"]} newPage={currentPage} />
+        <Breadcrumb items={["Cashier Screen", "Cashier"]} newPage={currentPage} />
         <div className="bg-white min-h-[500px] md:flex gap-3">
             <div className=" md:max-h-[650px] md:min-h-[580px] w-1/4 pr-3" 
             // style={{borderRight:"1px solid #4b54bb"}}
@@ -24,9 +24,9 @@ export default function CashierPage() {
               
                 <div
                   style={{border:"1px solid #5ac4fe"}}
-                  onClick={() => toggleCurrentPage("general")}
+                  onClick={() => toggleCurrentPage("cashier")}
                   className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                    currentPage == "general"
+                    currentPage == "cashier"
                       ? "sublink-active"
                       : "text-gray-700 bg-[#f5f5f5] sublink-hover"
                   }`}
@@ -36,21 +36,20 @@ export default function CashierPage() {
                       className="nc-icon nc-pin-3 "
                       style={{ fontSize: "18px" }}
                     />
-                    <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>General: </h2>
+                    <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Cashier: </h2>
                   </div>
                   <p
                     className=" mt-2 "
                     style={{ fontSize: "13px", paddingLeft: "10px" }}
                   >
-                    Change your deployment name, description, logo and other
-                    details
+                    For Deposits And Withdrawals of Customers
                   </p>
                 </div>
                 <div
                   style={{border:"1px solid #5ac4fe"}}
-                  onClick={() => toggleCurrentPage("users")}
+                  onClick={() => toggleCurrentPage("daybook")}
                   className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                    currentPage == "users"
+                    currentPage == "daybook"
                       ? "sublink-active"
                       : "text-gray-700 bg-[#f5f5f5] sublink-hover"
                   }`}
@@ -60,20 +59,20 @@ export default function CashierPage() {
                       className="nc-icon nc-pin-3 "
                       style={{ fontSize: "18px" }}
                     />
-                    <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Users: </h2>
+                    <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Daybook: </h2>
                   </div>
                   <p
                     className=" mt-2 "
                     style={{ fontSize: "13px", paddingLeft: "10px" }}
                   >
-                    Teams Associated with you
+                   Cashier's Dailybook For Daily Transactions and Balancing
                   </p>
                 </div>
                 <div
                   style={{border:"1px solid #5ac4fe"}}
-                  onClick={() => toggleCurrentPage("roles")}
+                  onClick={() => toggleCurrentPage("nominal voucher")}
                   className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                    currentPage == "roles"
+                    currentPage == "nominal voucher"
                       ? "sublink-active"
                       : "text-gray-700 bg-[#f5f5f5] sublink-hover"
                   }`}
@@ -83,40 +82,15 @@ export default function CashierPage() {
                       className="nc-icon nc-pin-3 "
                       style={{ fontSize: "18px" }}
                     />
-                    <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Roles: </h2>
+                    <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Nominal Voucher: </h2>
                   </div>
                   <p
                     className=" mt-2 "
                     style={{ fontSize: "13px", paddingLeft: "10px" }}
                   >
-                    Create and manage user permissions
+                    For Cash Affected Nominal Transactions
                   </p>
                 </div>
-                <div
-                  style={{border:"1px solid #5ac4fe"}}
-                  onClick={() => toggleCurrentPage("session")}
-                  className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                    currentPage == "session"
-                      ? "sublink-active"
-                      : "text-gray-700 bg-[#f5f5f5] sublink-hover"
-                  }`}
-                >
-                  <div className="flex items-start gap-3 my-font-family-overpass-mono">
-                    <i
-                      className="nc-icon nc-pin-3 "
-                      style={{ fontSize: "18px" }}
-                    />
-                    <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Bank Session: </h2>
-                  </div>
-                  
-                  <p
-                    className=" mt-2 "
-                    style={{ fontSize: "13px", paddingLeft: "10px" }}
-                  >
-                    Current Session : 23/08/2025
-                  </p>
-                </div>
-                
                 
   
   

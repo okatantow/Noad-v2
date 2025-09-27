@@ -1,6 +1,11 @@
 
 import { useState } from "react";
 import  Breadcrumb  from "../../components/layout/Breadcrumb";
+// import Role from "./roles/AddUpdateRole";
+import RolesList from "./roles/RolePage";
+import Example from "../Example";
+import RolePage from "./roles/RolePage";
+import UserPage from "./users/UserPage";
 
 export default function SystemManagerPage() {
    const [currentPage, setCurrentPage] = useState("users");
@@ -125,8 +130,10 @@ export default function SystemManagerPage() {
 
             </div>
           </div>
-          <div  className="w-3/4 my-black-bg  md:border-l border-blue-500 sm:p-5  rounded-l-3xl">
-           this is the main page
+          <div  className="w-3/4 my-black-bg bg-white md:border-l border-blue-500 sm:p-5  rounded-l-3xl">
+          {/* <Example/> */}
+           {currentPage == "roles" && <RolePage />}
+           {currentPage == "users" && <UserPage />}
             
           </div>
         

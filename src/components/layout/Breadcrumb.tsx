@@ -21,8 +21,8 @@ export default function Breadcrumb({ items, newPage }: BreadcrumbProps) {
 
   return (
     <nav className="text-sm text-gray-600 mb-0 flex items-start">
-      <div className="bg-[#add3fb] border-b border-b-amber-200 p-2 mt-2 capitalize">
-        <span className=" text-blue-500">{items[0]}</span>
+      <div className="bg-blue-100  p-2 mt-2 capitalize">
+        <span className=" text-blue-800">{items[0]}</span>
         <span className="mx-2">›</span>
         <span 
           key={animationKey}

@@ -110,7 +110,7 @@ code {
 
 
 
-.swal-modal
+/* .swal-modal
 {
 
     background-color: #3F1F2F;
@@ -123,11 +123,11 @@ code {
  }
  .swal-title,.swal-text{
   color: #f5f5f5;
- }
+ } */
 
 
 
-.Toastify__toast-theme--light {
+/* .Toastify__toast-theme--light {
    background-color: #3F1F2F !important;
   color: #fff !important;
   border-radius: 0 !important;
@@ -136,7 +136,7 @@ code {
 .Toastify__close-button--light {
   color: #fff !important;
   opacity: 0.1;
-}
+} */
 
 
 

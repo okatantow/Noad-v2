@@ -125,13 +125,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Handle CORS errors specifically
         if (axiosError.code === 'ERR_NETWORK' || 
             (axiosError.response && axiosError.response.status === 0)) {
-          console.error('CORS error: Make sure your server allows requests from this origin');
+          // console.error('CORS error: Make sure your server allows requests from this origin');
           dispatch({ type: 'SET_ERROR', payload: 'CORS error: Cannot connect to server' });
         } else if (axiosError.response?.status === 401) {
           // Not authenticated, which is fine
-          console.log('User is not authenticated');
+          // console.log('User is not authenticated');
         } else {
-          console.error('Auth check error:', error);
+          // console.error('Auth check error:', error);
         }
         
         dispatch({ type: 'INITIALIZED' });
