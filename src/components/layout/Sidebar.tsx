@@ -165,19 +165,19 @@ const Sidebar: React.FC<SidebarProps> = ({
             </span>
           </NavLink>
           <NavLink
-            to='/pages/nominal-ledger'
+            to='/pages/accounting-framework'
             className={`
-              ${activeRoute('pages/nominal-ledger')}
+              ${activeRoute('pages/accounting-framework')}
               group mt-1 hidden md:flex items-start bg-[#fff] border-gray-700 px-3 py-2  shadow hover:my-red-bg hover:no-underline
             `}
             onClick={toggleSidebar}
             style={{ textDecoration: "none" }}
           >
-            <div className="mr-2 transition-colors">
+            <div className="mr-1 transition-colors">
               <FontAwesomeIcon icon={faBook} className="h-7 w-7 text-[#5ac4fe] font-bold" />
             </div>
-            <span className=' my-sidebar-link  transition-colors my-font-family-overpass-mono'>
-              Nominal Ledger
+            <span className=' my-sidebar-link  transition-colors my-font-family-overpass-mono text-[0.9em]'>
+              Accounting Framework
             </span>
           </NavLink>
           <NavLink
@@ -229,9 +229,9 @@ const Sidebar: React.FC<SidebarProps> = ({
             </span>
           </NavLink>
           <NavLink
-            to='/pages/accounting'
+            to='/pages/financial-reports'
             className={`
-              ${activeRoute('pages/accounting')}
+              ${activeRoute('pages/financial-reports')}
               group mt-1 hidden md:flex items-start bg-[#fff] border-gray-700 px-3 py-2  shadow hover:my-red-bg hover:no-underline
             `}
             onClick={toggleSidebar}
@@ -241,7 +241,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <FontAwesomeIcon icon={faChartBar} className="h-7 w-7 text-[#5ac4fe] font-bold" />
             </div>
             <span className=' my-sidebar-link  transition-colors my-font-family-overpass-mono'>
-              Accounting
+              Financial Reports
             </span>
           </NavLink>
           <NavLink

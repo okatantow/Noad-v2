@@ -5,6 +5,8 @@ import { CheckSquare, Square, ArrowLeft } from "lucide-react";
 import { api } from "../../../services/api";
 import { toggleToaster } from "../../../provider/features/helperSlice";
 import { useDispatch } from "react-redux";
+import { withPermissions } from '../../../hooks/withPermissions';
+// import { usePermissions } from '../../../hooks/usePermissions';
 
 type FunctionType = {
   id: number;
@@ -256,4 +258,5 @@ const RoleAddUpdate: React.FC<RoleAddUpdateProps> = ({ roleId, setCurrentPage })
   );
 };
 
-export default RoleAddUpdate;
+// export default RoleAddUpdate;
+export default withPermissions(RoleAddUpdate, ['Add Role','Update Role','Delete Role']);

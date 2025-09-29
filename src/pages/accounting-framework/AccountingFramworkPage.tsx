@@ -1,17 +1,15 @@
 
 import { useState } from "react";
 import  Breadcrumb  from "../../components/layout/Breadcrumb";
-// import Role from "./roles/AddUpdateRole";
-import RolePage from "./roles/RolePage";
-import UserPage from "./users/UserPage";
+import ChartOfAccountPage from "./chart-of-accounts/ChartOfAccountPage";
 import { withPermissions } from '../../hooks/withPermissions';
 import { usePermissions } from '../../hooks/usePermissions';
 
 
- function SystemManagerPage() {
+ function AccountFrameworkPage() {
   const { hasPermission, hasAnyPermission } = usePermissions();
 
-   const [currentPage, setCurrentPage] = useState("users");
+   const [currentPage, setCurrentPage] = useState("chart of accounts");
 
   const toggleCurrentPage = (page:any) => {
     setCurrentPage(page);
@@ -23,18 +21,19 @@ import { usePermissions } from '../../hooks/usePermissions';
       <div className='flex items-start space-x-8'>
      
       </div>
-      <Breadcrumb items={["System Manager", "Customer Details"]} newPage={currentPage} />
+      <Breadcrumb items={["Accounting Framework", "Chart of Accounts"]} newPage={currentPage} />
       <div className="bg-white min-h-[500px] md:flex gap-3">
           <div className=" md:max-h-[650px] md:min-h-[580px] w-1/4 pr-3" 
           // style={{borderRight:"1px solid #4b54bb"}}
           >
             <div className="space-y-3 pt-6  pr-4 grid grid-cols-1 gap-1  my-scrollbar " >
-             {hasPermission('Update General') && <>
+            
+               {hasAnyPermission(['Add Chart Account','Update Chart Account','Delete Chart Account','View Chart Accounts']) && <>
               <div
                 style={{border:"1px solid #5ac4fe"}}
-                onClick={() => toggleCurrentPage("general")}
+                onClick={() => toggleCurrentPage("chart of accounts")}
                 className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                  currentPage == "general"
+                  currentPage == "chart of accounts"
                     ? "sublink-active"
                     : "text-gray-700 bg-[#f5f5f5] sublink-hover"
                 }`}
@@ -44,39 +43,13 @@ import { usePermissions } from '../../hooks/usePermissions';
                     className="nc-icon nc-pin-3 "
                     style={{ fontSize: "18px" }}
                   />
-                  <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>General: </h2>
+                  <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Chart of Accounts: </h2>
                 </div>
                 <p
                   className=" mt-2 "
                   style={{ fontSize: "13px", paddingLeft: "10px" }}
                 >
-                  Change your deployment name, description, logo and other
-                  details
-                </p>
-              </div>
-               </>}
-               {hasAnyPermission(['Add User','Update User','Delete User','View Users']) && <>
-              <div
-                style={{border:"1px solid #5ac4fe"}}
-                onClick={() => toggleCurrentPage("users")}
-                className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                  currentPage == "users"
-                    ? "sublink-active"
-                    : "text-gray-700 bg-[#f5f5f5] sublink-hover"
-                }`}
-              >
-                <div className="flex items-start gap-3 my-font-family-overpass-mono">
-                  <i
-                    className="nc-icon nc-pin-3 "
-                    style={{ fontSize: "18px" }}
-                  />
-                  <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Users: </h2>
-                </div>
-                <p
-                  className=" mt-2 "
-                  style={{ fontSize: "13px", paddingLeft: "10px" }}
-                >
-                  Teams Associated with you
+                  Manage Financial Accounts
                 </p>
               </div>
                </>}
@@ -142,8 +115,8 @@ import { usePermissions } from '../../hooks/usePermissions';
           </div>
           <div  className="w-3/4 my-black-bg bg-white md:border-l border-blue-500 sm:p-5  rounded-l-3xl">
           {/* <Example/> */}
-           {currentPage == "roles" && <RolePage />}
-           {currentPage == "users" && <UserPage />}
+           
+           {currentPage == "chart of accounts" && <ChartOfAccountPage />}
             
           </div>
         
@@ -152,4 +125,4 @@ import { usePermissions } from '../../hooks/usePermissions';
   );
 }
 
-export default withPermissions(SystemManagerPage, ['Update General','Add User','Add User','Update User','Delete User','View Users','Add Role','Update Role','Delete Role','View Roles','Open Session','Close Session']);
+export default withPermissions(AccountFrameworkPage, ['Update General','Add Chart Account','Add Chart Account','Update Chart Account','Delete Chart Account','View Chart Accounts','Add Role','Update Role','Delete Role','View Roles','Open Session','Close Session']);

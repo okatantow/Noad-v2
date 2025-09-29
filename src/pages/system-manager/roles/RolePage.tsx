@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import RolesList from "./RolesList";
 import RoleAddUpdate from "./RoleAddUpdate";
+import { withPermissions } from '../../../hooks/withPermissions';
+// import { usePermissions } from '../../../hooks/usePermissions';
 
-const RolePage: React.FC = () => {
+function RolePage () {
   const [currentPage, setCurrentPage] = useState<string>("list");
   const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(undefined);
 
@@ -25,4 +27,5 @@ const RolePage: React.FC = () => {
   );
 };
 
-export default RolePage;
+// export default RolePage;
+export default withPermissions(RolePage, ['Add Role','Update Role','Delete Role','View Roles']);

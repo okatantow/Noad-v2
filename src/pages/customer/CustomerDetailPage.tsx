@@ -1,5 +1,3 @@
-import { AppLayout } from "../../components/layout/AppLayout";
-import  PagesLayout  from "../../components/layout/PagesLayout";
 import  Breadcrumb  from "../../components/layout/Breadcrumb";
 import { useState } from "react";
 

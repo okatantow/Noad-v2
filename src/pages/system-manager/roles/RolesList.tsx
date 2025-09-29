@@ -4,6 +4,8 @@ import { Pencil, Trash2, Plus } from "lucide-react";
 import { api } from "../../../services/api";
 import { toggleToaster } from "../../../provider/features/helperSlice";
 import { useDispatch } from "react-redux";
+import { withPermissions } from '../../../hooks/withPermissions';
+import { usePermissions } from '../../../hooks/usePermissions';
 
 // DataTable
 import "datatables.net-dt/css/dataTables.dataTables.css";
@@ -25,7 +27,9 @@ type RolesListProps = {
   setSelectedRoleId: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 
-const RolesList: React.FC<RolesListProps> = ({ setCurrentPage, setSelectedRoleId }) => {
+function RolesList({ setCurrentPage, setSelectedRoleId }: RolesListProps) {
+  const { hasPermission} = usePermissions();
+
   const [roles, setRoles] = useState<RoleType[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -143,6 +147,7 @@ const RolesList: React.FC<RolesListProps> = ({ setCurrentPage, setSelectedRoleId
           <h1 className="text-2xl font-bold text-gray-900">Roles Management</h1>
           <p className="text-gray-600 mt-1">Manage user roles and permissions</p>
         </div>
+        {hasPermission('Add Role') && <>
         <a
           onClick={() => handleOpenForm()}
           className="inline-flex items-center px-4 py-2 cursor-pointer bg-green-600 text-white text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm"
@@ -150,6 +155,7 @@ const RolesList: React.FC<RolesListProps> = ({ setCurrentPage, setSelectedRoleId
           <Plus size={18} className="mr-2" />
           Add New Role
         </a>
+        </>}
       </div>
 
       {/* Stats Cards */}
@@ -213,6 +219,7 @@ const RolesList: React.FC<RolesListProps> = ({ setCurrentPage, setSelectedRoleId
                     )}
                   </td>
                   <td className="flex items-start space-x-2">
+                      {hasPermission('Update Role') ? <>
                     <button
                       onClick={() => handleOpenForm(role.id)}
                       className="inline-flex items-center p-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm"
@@ -220,6 +227,9 @@ const RolesList: React.FC<RolesListProps> = ({ setCurrentPage, setSelectedRoleId
                     >
                       <Pencil size={16} />
                     </button>
+                    </> : "<>"
+                    }
+                      {hasPermission('Delete Role') ? <>
                     <button
                       onClick={() => handleDelete(role.id)}
                       disabled={deletingId === role.id}
@@ -232,6 +242,8 @@ const RolesList: React.FC<RolesListProps> = ({ setCurrentPage, setSelectedRoleId
                         <Trash2 size={16} />
                       )}
                     </button>
+                    </> : "<>"
+                    }
                   </td>
                 </tr>
               ))}
@@ -263,4 +275,5 @@ const RolesList: React.FC<RolesListProps> = ({ setCurrentPage, setSelectedRoleId
   );
 };
 
-export default RolesList;
+// export default RolesList;
+export default withPermissions(RolesList, ['Add Role','Update Role','Delete Role','View Roles']);

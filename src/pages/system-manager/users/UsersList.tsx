@@ -8,6 +8,9 @@ import "datatables.net-dt/css/dataTables.dataTables.css";
 import $ from "jquery";
 import "datatables.net-dt";
 import swal from "sweetalert";
+import { withPermissions } from '../../../hooks/withPermissions';
+import { usePermissions } from '../../../hooks/usePermissions';
+
 
 type UserType = {
   id: number;
@@ -35,6 +38,8 @@ type UsersListProps = {
 
 const UsersList: React.FC<UsersListProps> = ({ setCurrentPage, setSelectedUserId }) => {
   const [users, setUsers] = useState<UserType[]>([]);
+  const { hasPermission } = usePermissions();
+
   const [roles, setRoles] = useState<RoleType[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -43,7 +48,6 @@ const UsersList: React.FC<UsersListProps> = ({ setCurrentPage, setSelectedUserId
   const tableRef = useRef<HTMLTableElement>(null);
   const dataTableRef = useRef<any>(null);
 
-  const userTypes = ["Cashier", "Mobile Banker", "Accountant", "Manager", "Auditor"];
 
   const fetchUsers = async () => {
     try {
@@ -68,10 +72,11 @@ const UsersList: React.FC<UsersListProps> = ({ setCurrentPage, setSelectedUserId
 
   const fetchRoles = async () => {
     try {
+    
       const res = await api.get("/roles");
       setRoles(res.data.data || []);
     } catch (error) {
-      console.error("Error fetching roles", error);
+      console.error("Error fetching roles", error+""+roles);
     }
   };
 
@@ -198,6 +203,7 @@ const UsersList: React.FC<UsersListProps> = ({ setCurrentPage, setSelectedUserId
           <h1 className="text-2xl font-bold text-gray-900">Users Management</h1>
           <p className="text-gray-600 mt-1">Manage system users and their access</p>
         </div>
+         {hasPermission('Add User') && <>
         <a
           onClick={() => handleOpenForm()}
           className="inline-flex items-center px-4 py-2 cursor-pointer bg-green-600 text-white text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm"
@@ -205,6 +211,7 @@ const UsersList: React.FC<UsersListProps> = ({ setCurrentPage, setSelectedUserId
           <Plus size={18} className="mr-2" />
           Add New User
         </a>
+        </>}
       </div>
 
       {/* Stats Cards */}
@@ -281,6 +288,7 @@ const UsersList: React.FC<UsersListProps> = ({ setCurrentPage, setSelectedUserId
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
                   <td className="flex items-start space-x-2">
+                     {hasPermission('Update User') ? <>
                     <button
                       onClick={() => handleOpenForm(user.id)}
                       className="inline-flex items-center p-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm"
@@ -288,6 +296,9 @@ const UsersList: React.FC<UsersListProps> = ({ setCurrentPage, setSelectedUserId
                     >
                       <Pencil size={16} />
                     </button>
+                     </> : "<>"
+                    }
+                     {hasPermission('Delete User') ? <>
                     <button
                       onClick={() => handleDelete(user.id)}
                       disabled={deletingId === user.id}
@@ -300,6 +311,8 @@ const UsersList: React.FC<UsersListProps> = ({ setCurrentPage, setSelectedUserId
                         <Trash2 size={16} />
                       )}
                     </button>
+                    </> : "<>"
+                    }
                   </td>
                 </tr>
               ))}
@@ -331,4 +344,5 @@ const UsersList: React.FC<UsersListProps> = ({ setCurrentPage, setSelectedUserId
   );
 };
 
-export default UsersList;
+// export default UsersList;
+export default withPermissions(UsersList, ['Add User1','Update User1','Delete User1','View Users']);

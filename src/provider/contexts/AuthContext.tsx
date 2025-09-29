@@ -1,21 +1,21 @@
+
 // src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import type { AxiosError } from 'axios';
+import { api } from '../../services/api';
 
-import type { 
-  AxiosError 
-} from 'axios';
-
-import { api } from '../../services/api'; // Import from the service file
-
-
-
-// Define types for our authentication state
+// Define types for our authentication state with permissions
 interface User {
   id: string;
   first_name: string;
   last_name: string;
   email: string;
+  role_id?: number;
+  role_name?: string;
+  role_permissions?: string[]; // Add permissions array
+  user_type?: string;
+  status?: string;
 }
 
 interface AuthState {
@@ -24,6 +24,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   initialized: boolean;
+  permissions: string[]; // Add permissions to state
 }
 
 interface LoginCredentials {
@@ -34,6 +35,9 @@ interface LoginCredentials {
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  hasPermission: (permission: string) => boolean; // Add permission check method
+  hasAnyPermission: (permissions: string[]) => boolean; // Check any of multiple permissions
+  hasAllPermissions: (permissions: string[]) => boolean; // Check all permissions
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,7 +49,8 @@ type AuthAction =
   | { type: 'LOGOUT' }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'INITIALIZED' }
-  | { type: 'SET_ERROR'; payload: string | null };
+  | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_PERMISSIONS'; payload: string[] }; // New action for permissions
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
@@ -58,6 +63,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         error: null, 
         isAuthenticated: true,
         user: action.payload,
+        permissions: action.payload.role_permissions || [], // Set permissions from user
         initialized: true,
       };
     case 'LOGIN_FAILURE':
@@ -67,6 +73,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         error: action.payload,
         isAuthenticated: false,
         user: null,
+        permissions: [], // Clear permissions on failure
         initialized: true,
       };
     case 'LOGOUT':
@@ -74,6 +81,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         ...state, 
         isAuthenticated: false,
         user: null,
+        permissions: [], // Clear permissions on logout
         error: null,
         initialized: true,
       };
@@ -83,6 +91,8 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return { ...state, initialized: true };
     case 'SET_ERROR':
       return { ...state, error: action.payload };
+    case 'SET_PERMISSIONS':
+      return { ...state, permissions: action.payload };
     default:
       return state;
   }
@@ -94,6 +104,7 @@ const initialState: AuthState = {
   loading: false,
   error: null,
   initialized: false,
+  permissions: [], // Initialize permissions array
 };
 
 interface AuthProviderProps {
@@ -104,9 +115,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const authCheckAttempted = useRef(false);
 
-  // Check if user is authenticated on app load - only once
+  // Check if user is authenticated on app load
   useEffect(() => {
-    // Skip if already attempted
     if (authCheckAttempted.current || state.initialized) return;
     
     authCheckAttempted.current = true;
@@ -114,7 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAuth = async () => {
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
-        const response = await api.get('/user-profile');
+        const response = await api.get('/user-profile'); 
         dispatch({ 
           type: 'LOGIN_SUCCESS', 
           payload: response.data 
@@ -122,16 +132,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         const axiosError = error as AxiosError;
         
-        // Handle CORS errors specifically
         if (axiosError.code === 'ERR_NETWORK' || 
             (axiosError.response && axiosError.response.status === 0)) {
-          // console.error('CORS error: Make sure your server allows requests from this origin');
           dispatch({ type: 'SET_ERROR', payload: 'CORS error: Cannot connect to server' });
         } else if (axiosError.response?.status === 401) {
           // Not authenticated, which is fine
-          // console.log('User is not authenticated');
         } else {
-          // console.error('Auth check error:', error);
+          console.error('Auth check error:', error);
         }
         
         dispatch({ type: 'INITIALIZED' });
@@ -173,10 +180,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Permission checking methods
+  const hasPermission = (permission: string): boolean => {
+    return state.permissions.includes(permission);
+  };
+
+  const hasAnyPermission = (permissions: string[]): boolean => {
+    return permissions.some(permission => state.permissions.includes(permission));
+  };
+
+  const hasAllPermissions = (permissions: string[]): boolean => {
+    return permissions.every(permission => state.permissions.includes(permission));
+  };
+
   const value: AuthContextType = {
     ...state,
     login,
     logout,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
   };
 
   return (
@@ -193,3 +216,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+

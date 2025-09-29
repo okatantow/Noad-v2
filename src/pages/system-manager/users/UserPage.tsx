@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import UsersList from "./UsersList";
 import UserAddUpdate from "./UserAddUpdate";
+import { withPermissions } from '../../../hooks/withPermissions';
+
 
 const UserPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<string>("list");
@@ -25,4 +27,5 @@ const UserPage: React.FC = () => {
   );
 };
 
-export default UserPage;
+// export default UserPage;
+export default withPermissions(UserPage, ['Add User','Update User','Delete User','View Users']);

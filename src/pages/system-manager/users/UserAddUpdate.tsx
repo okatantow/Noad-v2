@@ -5,6 +5,8 @@ import { ArrowLeft } from "lucide-react";
 import { api } from "../../../services/api";
 import { toggleToaster } from "../../../provider/features/helperSlice";
 import { useDispatch } from "react-redux";
+import { withPermissions } from '../../../hooks/withPermissions';
+
 
 type UserType = {
   id?: number;
@@ -412,4 +414,6 @@ const UserAddUpdate: React.FC<UserAddUpdateProps> = ({ userId, setCurrentPage })
   );
 };
 
-export default UserAddUpdate;
+// export default UserAddUpdate;
+export default withPermissions(UserAddUpdate, ['Add User','Update User','Delete User','View Users']);
+

@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState} from "react";
 import type { ReactElement } from "react";
-import { useLocation, useNavigate, Routes, Route } from "react-router-dom";
+import {  Routes, Route } from "react-router-dom";
 
 import Sidebar from "./Sidebar";
 import { MobileRestrictedRoute } from '../MobileRestrictedRoute';
@@ -25,31 +25,22 @@ interface AppRoute {
   icon?: string;
 }
 
-// Define user and deployment interfaces
-interface User {
-  [key: string]: any;
-}
 
-interface Deployment {
-  [key: string]: any;
-}
+
 
 interface AppLayoutProps {
   // Keep it empty or remove if not needed
 }
 
 export const PagesLayout: React.FC<AppLayoutProps> = () => {
-  const [image, setImage] = useState<string>(sidebarImage);
-  const [color, setColor] = useState<string>("black");
-  const [hasImage, setHasImage] = useState<boolean>(true);
-  const location = useLocation();
-  const navigate = useNavigate();
-  const mainPanel = useRef<HTMLDivElement>(null);
+  const [image] = useState<string>(sidebarImage);
+  const [color] = useState<string>("black");
+  const [hasImage] = useState<boolean>(true);
+
   
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [deployment, setDeployment] = useState<Deployment | null>(null);
-  const [userLogin, setUserLogin] = useState<string>('');
+  
+  const [userLogin] = useState<string>('');
 
   const toggleSidebar = (): void => {
     setIsSidebarOpen(!isSidebarOpen);

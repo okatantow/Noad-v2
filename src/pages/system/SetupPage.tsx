@@ -1,7 +1,7 @@
 import  Breadcrumb  from "../../components/layout/Breadcrumb";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-import {  useDispatch } from "react-redux";
+// import {  useDispatch } from "react-redux";
 import SystemPage from "./SystemPage";
 
 
@@ -14,7 +14,7 @@ const SetupPage: React.FC = () => {
       // setCurrentTab(tab);
     };
  
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   
  
 

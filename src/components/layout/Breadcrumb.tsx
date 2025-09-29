@@ -7,7 +7,7 @@ interface BreadcrumbProps {
 
 export default function Breadcrumb({ items, newPage }: BreadcrumbProps) {
   const [currentPage, setCurrentPage] = useState(items[1]);
-  const [displayPage, setDisplayPage] = useState(items[1]);
+  // const [displayPage, setDisplayPage] = useState(items[1]);
   const [animationKey, setAnimationKey] = useState(0);
 
   useEffect(() => {

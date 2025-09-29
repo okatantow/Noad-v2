@@ -9,12 +9,12 @@ import LoansPage from "./pages/loans/LoansPage";
 import AccountantPage from "./pages/accountant/AccountantPage";
 import AccountingPage from "./pages/accounting/AccountingPage";
 import SystemManagerPage from "./pages/system-manager/SystemManagerPage";
-import NominalLedgerPage from "./pages/noninal-ledger/NominalLedgerPage";
 import OverDraftPage from "./pages/overdraft/OverdraftPage";
 import BankTransactionPage from "./pages/bank-transactions/BankTransactionPage";
 import TreasuryPage from "./pages/treasury/TreasuryPage";
-import SystemPage from "./pages/system/SystemPage";
+// import SystemPage from "./pages/system/SystemPage";
 import SetupPage from "./pages/system/SetupPage";
+import AccountingFrameworkPage from "./pages/accounting-framework/AccountingFramworkPage";
 
 const dashboardRoutes = [
   {
@@ -58,8 +58,8 @@ const dashboardRoutes = [
     mobileRestricted: true,
   },
    {
-    path: "/accounting",
-    name: "Accounting",
+    path: "/financial-reports",
+    name: "Financial Reports",
     icon: "nc-icon nc-pin-3",
     component: AccountingPage,
     layout: "/pages",
@@ -74,10 +74,10 @@ const dashboardRoutes = [
     mobileRestricted: true,
   },
    {
-    path: "/nominal-ledger",
-    name: "Nominal-ledger",
+    path: "/accounting-framework",
+    name: "Accounting Framework",
     icon: "nc-icon nc-pin-3",
-    component: NominalLedgerPage,
+    component: AccountingFrameworkPage,
     layout: "/pages",
     mobileRestricted: true,
   },

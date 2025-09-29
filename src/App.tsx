@@ -3,10 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './provider/contexts/AuthContext';
 import ReduxProvider from './provider/redux/ReduxProvider';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+// import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import "./App.css";
-import CustomerDetailsPage from './pages/customer/CustomerDetailPage';
+// import CustomerDetailsPage from './pages/customer/CustomerDetailPage';
 import PagesLayout from './components/layout/PagesLayout';
 
 const App: React.FC = () => {
