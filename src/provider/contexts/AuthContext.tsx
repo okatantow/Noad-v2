@@ -12,6 +12,7 @@ interface User {
   last_name: string;
   email: string;
   role_id?: number;
+  branch?: number;
   role_name?: string;
   role_permissions?: string[]; // Add permissions array
   user_type?: string;
