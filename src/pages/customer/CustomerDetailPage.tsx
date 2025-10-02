@@ -1,11 +1,12 @@
-
-
 import { useState } from "react";
 import Breadcrumb from "../../components/layout/Breadcrumb";
 import { withPermissions } from '../../hooks/withPermissions';
 import { usePermissions } from '../../hooks/usePermissions';
 import CustomerAddUpdate from "./customer-manager/CustomerAddUpdate";
-
+import CustomerAccounts from "./accounts/CustomerAccounts";
+import AccountList from "./accounts/AccountList";
+import CustomerList from "./customer-manager/CustomerList";
+import { User, List, Users } from "lucide-react";
 
 function CustomerDetailPage() {
   const { hasPermission, hasAnyPermission } = usePermissions();
@@ -39,9 +40,8 @@ function CustomerDetailPage() {
                   }`}
               >
                 <div className="flex items-start gap-3 my-font-family-overpass-mono">
-                  <i
-                    className="nc-icon nc-pin-3 "
-                    style={{ fontSize: "18px" }}
+                  <User
+                    size={18}
                   />
                   <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Customer Details: </h2>
                 </div>
@@ -49,167 +49,65 @@ function CustomerDetailPage() {
                   className=" mt-2 "
                   style={{ fontSize: "13px", paddingLeft: "10px" }}
                 >
-                  Handle Customer Info
+                  Add Or Update A Customer
                 </p>
               </div>
             </>}
             {hasAnyPermission(['Add Role', 'Update Role', 'Delete Role', 'View Roles']) && <>
               <div
                 style={{ border: "1px solid #5ac4fe" }}
-                onClick={() => toggleCurrentPage("nominal ledger layout")}
-                className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${currentPage == "nominal ledger layout"
+                onClick={() => toggleCurrentPage("account list")}
+                className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${currentPage == "account list"
                     ? "sublink-active"
                     : "text-gray-700 bg-[#f5f5f5] sublink-hover"
                   }`}
               >
                 <div className="flex items-start gap-3 my-font-family-overpass-mono">
-                  <i
-                    className="nc-icon nc-pin-3 "
-                    style={{ fontSize: "18px" }}
+                  <List
+                    size={18}
                   />
-                  <h2 className="font-semibold" style={{ fontSize: "1.2em" }}> Nominal Ledger Layout: </h2>
+                  <h2 className="font-semibold" style={{ fontSize: "1.2em" }}> Account Lists: </h2>
                 </div>
                 <p
                   className=" mt-2 "
                   style={{ fontSize: "13px", paddingLeft: "10px" }}
                 >
-                  Nominal Ledger Layout
+                 Lists of all accounts
                 </p>
               </div>
             </>}
             {hasAnyPermission(['Add Role', 'Update Role', 'Delete Role', 'View Roles']) && <>
               <div
                 style={{ border: "1px solid #5ac4fe" }}
-                onClick={() => toggleCurrentPage("general ledger")}
-                className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${currentPage == "general ledger"
+                onClick={() => toggleCurrentPage("customer list")}
+                className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${currentPage == "customer list"
                     ? "sublink-active"
                     : "text-gray-700 bg-[#f5f5f5] sublink-hover"
                   }`}
               >
                 <div className="flex items-start gap-3 my-font-family-overpass-mono">
-                  <i
-                    className="nc-icon nc-pin-3 "
-                    style={{ fontSize: "18px" }}
+                  <Users
+                    size={18}
                   />
-                  <h2 className="font-semibold" style={{ fontSize: "1.2em" }}> General Ledger: </h2>
+                  <h2 className="font-semibold" style={{ fontSize: "1.2em" }}> Customer List: </h2>
                 </div>
                 <p
                   className=" mt-2 "
                   style={{ fontSize: "13px", paddingLeft: "10px" }}
                 >
-                  General Ledger
+                  List Of Customers
                 </p>
               </div>
             </>}
           </div>
-           <div className="space-y-3 pt-6  pr-4 grid grid-cols-1 gap-1  my-scrollbar " >
-             
-               <div
-                 style={{border:"1px solid #5ac4fe"}}
-                 onClick={() => toggleCurrentPage("customer details")}
-                 className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                   currentPage == "customer details"
-                     ? "sublink-active"
-                     : "text-gray-700 bg-[#f5f5f5] sublink-hover"
-                 }`}
-               >
-                 <div className="flex items-start gap-3 my-font-family-overpass-mono">
-                   <i
-                     className="nc-icon nc-pin-3 "
-                     style={{ fontSize: "18px" }}
-                   />
-                   <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Customer Details: </h2>
-                 </div>
-                 <p
-                   className=" mt-2 "
-                   style={{ fontSize: "13px", paddingLeft: "10px" }}
-                 >
-                   Add Or Update a customer
-                 </p>
-               </div>
-               <div
-                 style={{border:"1px solid #5ac4fe"}}
-                 onClick={() => toggleCurrentPage("accounts")}
-                 className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                   currentPage == "accounts"
-                     ? "sublink-active"
-                     : "text-gray-700 bg-[#f5f5f5] sublink-hover"
-                 }`}
-               >
-                 <div className="flex items-start gap-3 my-font-family-overpass-mono">
-                   <i
-                     className="nc-icon nc-pin-3 "
-                     style={{ fontSize: "18px" }}
-                   />
-                   <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Customer Accounts: </h2>
-                 </div>
-                 <p
-                   className=" mt-2 "
-                   style={{ fontSize: "13px", paddingLeft: "10px" }}
-                 >
-                   Add Or Update A Customer Account
-                 </p>
-               </div>
-               <div
-                 style={{border:"1px solid #5ac4fe"}}
-                 onClick={() => toggleCurrentPage("accounts list")}
-                 className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                   currentPage == "accounts list"
-                     ? "sublink-active"
-                     : "text-gray-700 bg-[#f5f5f5] sublink-hover"
-                 }`}
-               >
-                 <div className="flex items-start gap-3 my-font-family-overpass-mono">
-                   <i
-                     className="nc-icon nc-pin-3 "
-                     style={{ fontSize: "18px" }}
-                   />
-                   <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Account List: </h2>
-                 </div>
-                 <p
-                   className=" mt-2 "
-                   style={{ fontSize: "13px", paddingLeft: "10px" }}
-                 >
-                   List Of All Account
-                 </p>
-               </div>
-               <div
-                 style={{border:"1px solid #5ac4fe"}}
-                 onClick={() => toggleCurrentPage("customer list")}
-                 className={`min-h-[115px] max-h-[115px] shadow-sm cursor-pointer  py-2 px-1  hover:border-y-yellow-600  ${
-                   currentPage == "customer list"
-                     ? "sublink-active"
-                     : "text-gray-700 bg-[#f5f5f5] sublink-hover"
-                 }`}
-               >
-                 <div className="flex items-start gap-3 my-font-family-overpass-mono">
-                   <i
-                     className="nc-icon nc-pin-3 "
-                     style={{ fontSize: "18px" }}
-                   />
-                   <h2 className="font-semibold" style={{ fontSize: "1.2em" }}>Customer List: </h2>
-                 </div>
-                 
-                 <p
-                   className=" mt-2 "
-                   style={{ fontSize: "13px", paddingLeft: "10px" }}
-                 >
-                   Lists Of Cutomers
-                 </p>
-               </div>
-               
-               
- 
- 
-              
- 
- 
-             </div>
+         
         </div>
         <div className="w-3/4 my-black-bg bg-white md:border-l border-blue-500 sm:p-5  rounded-l-3xl">
           {/* <Example/> */}
 
           {currentPage == "customer details" && <CustomerAddUpdate />}
+          {currentPage == "account list" && <AccountList />}
+          {currentPage == "customer list" && <CustomerList />}
          
 
         </div>

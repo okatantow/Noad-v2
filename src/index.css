@@ -108,7 +108,40 @@ code {
   }
 
 
+button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: none;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+}
 
+/* Add to your existing CSS */
+.data-table th,
+.data-table td {
+  padding: 4px 8px; /* Reduced from larger values */
+  line-height: 1.2; /* Tighter line spacing */
+}
+
+.data-table tr {
+  height: auto; /* Remove fixed heights */
+  min-height: 32px; /* Minimum comfortable height */
+}
+
+/* For print specifically */
+@media print {
+  .data-table th,
+  .data-table td {
+    padding: 3px 6px;
+  }
+  
+  .parent-account td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+}
 
 /* .swal-modal
 {
