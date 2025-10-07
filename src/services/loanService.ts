@@ -74,7 +74,7 @@ export const loanService = {
   // Repayments
   getRepaymentSchedule: async (loanId: number): Promise<RepaymentScheduleType[]> => {
     const response = await api.get(`/loans/${loanId}/repayment-schedule`);
-    return response.data.data;
+    return response.data.data.repayment_schedule;
   },
 
   processRepayment: async (loanId: number, data: {
@@ -104,6 +104,6 @@ export const loanService = {
   // Transactions
   getLoanTransactions: async (loanId: number): Promise<LoanTransactionType[]> => {
     const response = await api.get(`/loans/${loanId}/transactions`);
-    return response.data.data;
+    return response.data.data.transactions;
   }
 };

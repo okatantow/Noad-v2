@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, DollarSign, Calendar } from 'lucide-react';
+import { X, User, DollarSign, Calendar, Search, Loader } from 'lucide-react';
 import { loanService } from '../../../services/loanService';
+// import { get } from '../../../services/customerService';
+import * as customerService from '../../../services/customerService';
 import type { LoanProductType, CustomerType } from '../../../types/loan';
 
 interface LoanApplicationFormProps {
@@ -13,6 +15,12 @@ const LoanApplicationForm: React.FC<LoanApplicationFormProps> = ({ onClose, cust
   const [loading, setLoading] = useState(false);
   const [loanProducts, setLoanProducts] = useState<LoanProductType[]>([]);
   const [customers, setCustomers] = useState<CustomerType[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<CustomerType[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerType | null>(customer || null);
+  
   const [formData, setFormData] = useState({
     customer_id: customer?.id || '',
     loan_product_id: '',
@@ -29,20 +37,67 @@ const LoanApplicationForm: React.FC<LoanApplicationFormProps> = ({ onClose, cust
     try {
       const [productsResponse, customersResponse] = await Promise.all([
         loanService.getLoanProducts(),
-        // You'll need a customer service to fetch customers
-        // customerService.getCustomers()
+        customerService.getCustomers()
       ]);
       setLoanProducts(productsResponse);
-      // setCustomers(customersResponse);
+      setCustomers(customersResponse);
     } catch (error) {
       console.error('Error loading data:', error);
     }
   };
 
+  // Debounced search function
+  useEffect(() => {
+    const searchCustomers = async () => {
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        setShowSearchResults(false);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const results = await customerService.searchCustomers(searchQuery);
+        setSearchResults(results.data);
+        setShowSearchResults(true);
+      } catch (error) {
+        console.error('Error searching customers:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const timeoutId = setTimeout(searchCustomers, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const handleCustomerSelect = (customer: CustomerType) => {
+    setSelectedCustomer(customer);
+    setFormData(prev => ({ ...prev, customer_id: customer.id.toString() }));
+    setSearchQuery(`${customer.first_name} ${customer.last_name} (${customer.customer_number})`);
+    setShowSearchResults(false);
+    setSearchResults([]);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    if (!e.target.value.trim()) {
+      setSelectedCustomer(null);
+      setFormData(prev => ({ ...prev, customer_id: '' }));
+      setShowSearchResults(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!selectedCustomer) {
+      alert('Please select a customer');
+      return;
+    }
 
+    setLoading(true);
     try {
       await loanService.applyForLoan({
         customer_id: Number(formData.customer_id),
@@ -82,25 +137,103 @@ const LoanApplicationForm: React.FC<LoanApplicationFormProps> = ({ onClose, cust
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Customer Selection */}
-            <div>
+            {/* Customer Search */}
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <User className="h-4 w-4 inline mr-1" />
-                Customer
+                Customer Search
               </label>
-              <select
-                required
-                value={formData.customer_id}
-                onChange={(e) => setFormData({ ...formData, customer_id: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Select Customer</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.first_name} {customer.last_name} ({customer.customer_number})
-                  </option>
-                ))}
-              </select>
+              
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  placeholder="Search by name or customer number..."
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                {isSearching && (
+                  <Loader className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 animate-spin" />
+                )}
+              </div>
+
+              {/* Search Results Dropdown */}
+              <AnimatePresence>
+                {showSearchResults && searchResults.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  >
+                    {searchResults.map((customer) => (
+                      <div
+                        key={customer.id}
+                        onClick={() => handleCustomerSelect(customer)}
+                        className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="font-medium text-gray-900">
+                          {customer.first_name} {customer.last_name}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Customer #: {customer.customer_number}
+                          {customer.telephone_number && ` • Phone: ${customer.telephone_number}`}
+                        </div>
+                        {/* {customer.city && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Location: {customer.city}
+                          </div>
+                        )} */}
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Selected Customer Info */}
+              {selectedCustomer && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-medium text-green-900">
+                        {selectedCustomer.first_name} {selectedCustomer.last_name}
+                      </h4>
+                      <p className="text-sm text-green-700">
+                        Customer #: {selectedCustomer.customer_number}
+                        {selectedCustomer.telephone_number && ` • Phone: ${selectedCustomer.telephone_number}`}
+                      </p>
+                      {/* {selectedCustomer.city && (
+                        <p className="text-xs text-green-600 mt-1">
+                          Location: {selectedCustomer.city}
+                        </p>
+                      )} */}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCustomer(null);
+                        setSearchQuery('');
+                        setFormData(prev => ({ ...prev, customer_id: '' }));
+                      }}
+                      className="text-green-600 hover:text-green-800 text-sm"
+                    >
+                      Change
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* No Results Message */}
+              {showSearchResults && searchQuery && !isSearching && searchResults.length === 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-center text-gray-500">
+                  No customers found matching "{searchQuery}"
+                </div>
+              )}
             </div>
 
             {/* Loan Product Selection */}
@@ -114,6 +247,7 @@ const LoanApplicationForm: React.FC<LoanApplicationFormProps> = ({ onClose, cust
                 value={formData.loan_product_id}
                 onChange={(e) => setFormData({ ...formData, loan_product_id: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                disabled={!selectedCustomer}
               >
                 <option value="">Select Loan Product</option>
                 {loanProducts.filter(p => p.is_active).map((product) => (
@@ -122,6 +256,9 @@ const LoanApplicationForm: React.FC<LoanApplicationFormProps> = ({ onClose, cust
                   </option>
                 ))}
               </select>
+              {!selectedCustomer && (
+                <p className="text-sm text-gray-500 mt-1">Please select a customer first</p>
+              )}
             </div>
 
             {selectedProduct && (
@@ -149,6 +286,7 @@ const LoanApplicationForm: React.FC<LoanApplicationFormProps> = ({ onClose, cust
                 onChange={(e) => setFormData({ ...formData, applied_amount: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter loan amount"
+                disabled={!selectedCustomer}
               />
             </div>
 
@@ -167,6 +305,7 @@ const LoanApplicationForm: React.FC<LoanApplicationFormProps> = ({ onClose, cust
                 onChange={(e) => setFormData({ ...formData, term_months: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter loan term in months"
+                disabled={!selectedCustomer}
               />
             </div>
 
@@ -182,6 +321,7 @@ const LoanApplicationForm: React.FC<LoanApplicationFormProps> = ({ onClose, cust
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Describe the purpose of this loan..."
+                disabled={!selectedCustomer}
               />
             </div>
 
@@ -196,8 +336,8 @@ const LoanApplicationForm: React.FC<LoanApplicationFormProps> = ({ onClose, cust
               </button>
               <button
                 type="submit"
-                disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                disabled={loading || !selectedCustomer}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Submitting...' : 'Submit Application'}
               </button>
