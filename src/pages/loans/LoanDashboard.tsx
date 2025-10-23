@@ -1,188 +1,204 @@
-import React, { useState } from 'react';
+// components/loans/LoanDashboard.tsx
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  DollarSign, 
-  FileText, 
   TrendingUp, 
+  Users, 
+  DollarSign, 
+  Clock,
+  Calendar,
   AlertTriangle,
   CheckCircle,
-  Clock,
-  XCircle
+  Plus,
+  FileText,
+  List
 } from 'lucide-react';
-import LoanProductsList from './products/LoanProductsList';
-import LoanList from './products/LoanList';
-import LoanApplicationsList from './application/LoanApplicationsList';
-import LoanApplicationForm from './application/LoadApplicationForm';
-import type { LoanApplicationType } from '../../types/loan';
+import { api } from '../../services/api';
 
-const LoanDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'loans' | 'products'>('overview');
+interface LoanStats {
+  totalLoans: number;
+  activeLoans: number;
+  totalPortfolio: number;
+  overdueLoans: number;
+  pendingApplications: number;
+  monthlyRepayment: number;
+}
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Loan Management</h1>
-          <p className="text-gray-600">Manage loan applications, disbursements, and repayments</p>
-        </div>
+interface LoanDashboardProps {
+  setCurrentPage: (page: string) => void;
+  setSelectedLoanId?: (id: number) => void;
+}
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            icon={<DollarSign className="h-8 w-8 text-green-600" />}
-            title="Total Loan Portfolio"
-            value="GHS 2,450,000"
-            change="+12.5%"
-            changeType="positive"
-          />
-          <StatCard
-            icon={<FileText className="h-8 w-8 text-blue-600" />}
-            title="Pending Applications"
-            value="24"
-            change="+3"
-            changeType="neutral"
-          />
-          <StatCard
-            icon={<AlertTriangle className="h-8 w-8 text-red-600" />}
-            title="Loans in Default"
-            value="8"
-            change="+2"
-            changeType="negative"
-          />
-          <StatCard
-            icon={<TrendingUp className="h-8 w-8 text-purple-600" />}
-            title="Recovery Rate"
-            value="94.2%"
-            change="+1.2%"
-            changeType="positive"
-          />
-        </div>
+const LoanDashboard: React.FC<LoanDashboardProps> = ({ setCurrentPage, setSelectedLoanId }) => {
+  const [stats, setStats] = useState<LoanStats>({
+    totalLoans: 0,
+    activeLoans: 0,
+    totalPortfolio: 0,
+    overdueLoans: 0,
+    pendingApplications: 0,
+    monthlyRepayment: 0
+  });
+  const [loading, setLoading] = useState(true);
 
-        {/* Navigation Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
-              {[
-                { id: 'overview', name: 'Overview', icon: TrendingUp },
-                { id: 'applications', name: 'Applications', icon: FileText },
-                { id: 'loans', name: 'Active Loans', icon: DollarSign },
-                { id: 'products', name: 'Loan Products', icon: CheckCircle },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 py-4 px-6 text-center font-medium text-sm border-b-2 transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <tab.icon className="h-4 w-4 inline-block mr-2" />
-                  {tab.name}
-                </button>
-              ))}
-            </nav>
-          </div>
+  useEffect(() => {
+    fetchLoanStats();
+  }, []);
 
-          {/* Tab Content */}
-          <div className="p-6">
-            {activeTab === 'overview' && <OverviewTab />}
-            {activeTab === 'applications' && <ApplicationsTab />}
-            {activeTab === 'loans' && <ActiveLoansTab />}
-            {activeTab === 'products' && <LoanProductsTab />}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+  const fetchLoanStats = async () => {
+    try {
+      const response = await api.get('/loans/dashboard-stats');
+      setStats(response.data.data);
+    } catch (error) {
+      console.error('Error fetching loan stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-// Stat Card Component
-const StatCard: React.FC<{
-  icon: React.ReactNode;
-  title: string;
-  value: string;
-  change: string;
-  changeType: 'positive' | 'negative' | 'neutral';
-}> = ({ icon, title, value, change, changeType }) => {
-  const changeColor = {
-    positive: 'text-green-600',
-    negative: 'text-red-600',
-    neutral: 'text-gray-600'
-  }[changeType];
-
-  return (
+  const StatCard: React.FC<{
+    title: string;
+    value: string | number;
+    icon: React.ReactNode;
+    color: string;
+    trend?: string;
+  }> = ({ title, value, icon, color, trend }) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      className="bg-white rounded-lg border border-gray-200 p-6"
     >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-          <p className={`text-sm ${changeColor} mt-1`}>{change} from last month</p>
+          <p className="text-2xl font-bold text-gray-900 mt-2">{value}</p>
+          {trend && <p className="text-xs text-gray-500 mt-1">{trend}</p>}
         </div>
-        <div className="p-3 bg-gray-50 rounded-lg">
+        <div className={`p-3 rounded-full ${color}`}>
           {icon}
         </div>
       </div>
     </motion.div>
   );
-};
 
-// Tab Components
-const OverviewTab: React.FC = () => (
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-      {/* Recent activity list would go here */}
-    </div>
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Portfolio Health</h3>
-      {/* Portfolio health chart would go here */}
-    </div>
-  </div>
-);
-
-const ApplicationsTab: React.FC = () => {
-  const [applications, setApplications] = useState<LoanApplicationType[]>([]);
-  const [showApplicationForm, setShowApplicationForm] = useState(false);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Loan Applications</h3>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Loan Dashboard</h1>
+          <p className="text-gray-600">Overview of loan portfolio and performance</p>
+        </div>
         <button
-          onClick={() => setShowApplicationForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          onClick={() => setCurrentPage('products')}
+          className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2"
         >
-          New Application
+          <List size={18} />
+          Manage Loan Products
         </button>
       </div>
 
-      {showApplicationForm && (
-        <LoanApplicationForm onClose={() => setShowApplicationForm(false)} />
-      )}
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StatCard
+          title="Total Loan Portfolio"
+          value={`GHS ${stats.totalPortfolio.toLocaleString()}`}
+          icon={<DollarSign className="h-6 w-6 text-white" />}
+          color="bg-green-500"
+          trend="+12% from last month"
+        />
+        
+        <StatCard
+          title="Active Loans"
+          value={stats.activeLoans}
+          icon={<Users className="h-6 w-6 text-white" />}
+          color="bg-blue-500"
+          trend="+5 new this month"
+        />
+        
+        <StatCard
+          title="Pending Applications"
+          value={stats.pendingApplications}
+          icon={<Clock className="h-6 w-6 text-white" />}
+          color="bg-yellow-500"
+          trend="Awaiting approval"
+        />
+        
+        <StatCard
+          title="Overdue Loans"
+          value={stats.overdueLoans}
+          icon={<AlertTriangle className="h-6 w-6 text-white" />}
+          color="bg-red-500"
+          trend="Requires attention"
+        />
+        
+        <StatCard
+          title="Monthly Repayment"
+          value={`GHS ${stats.monthlyRepayment.toLocaleString()}`}
+          icon={<TrendingUp className="h-6 w-6 text-white" />}
+          color="bg-purple-500"
+          trend="Due this month"
+        />
+        
+        <StatCard
+          title="Total Loans"
+          value={stats.totalLoans}
+          icon={<CheckCircle className="h-6 w-6 text-white" />}
+          color="bg-indigo-500"
+          trend="All time"
+        />
+      </div>
 
-      <LoanApplicationsList />
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setCurrentPage('application')}
+          className="bg-blue-600 text-white p-4 rounded-lg text-center hover:bg-blue-700 transition-colors"
+        >
+          <Plus className="h-8 w-8 mx-auto mb-2" />
+          <p className="font-medium">New Application</p>
+        </motion.button>
+        
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setCurrentPage('loan-repayment')}
+          className="bg-green-600 text-white p-4 rounded-lg text-center hover:bg-green-700 transition-colors"
+        >
+          <DollarSign className="h-8 w-8 mx-auto mb-2" />
+          <p className="font-medium">Process Repayment</p>
+        </motion.button>
+        
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setCurrentPage('applications')}
+          className="bg-purple-600 text-white p-4 rounded-lg text-center hover:bg-purple-700 transition-colors"
+        >
+          <FileText className="h-8 w-8 mx-auto mb-2" />
+          <p className="font-medium">View Applications</p>
+        </motion.button>
+        
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setCurrentPage('active-loans')}
+          className="bg-orange-600 text-white p-4 rounded-lg text-center hover:bg-orange-700 transition-colors"
+        >
+          <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
+          <p className="font-medium">Active Loans</p>
+        </motion.button>
+      </div>
     </div>
   );
 };
-
-const ActiveLoansTab: React.FC = () => (
-  <div>
-    <h3 className="text-lg font-semibold text-gray-900 mb-6">Active Loans</h3>
-    <LoanList />
-  </div>
-);
-
-const LoanProductsTab: React.FC = () => (
-  <div>
-    <h3 className="text-lg font-semibold text-gray-900 mb-6">Loan Products</h3>
-    <LoanProductsList />
-  </div>
-);
 
 export default LoanDashboard;

@@ -1,270 +1,334 @@
-import React, { useState, useEffect } from 'react';
+// components/loans/LoanApplicationsList.tsx
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, XCircle, Clock, Eye, DollarSign } from 'lucide-react';
-import { loanService } from '../../../services/loanService';
-import type { LoanApplicationType } from '../../../types/loan';
+import { Search, Filter, CheckCircle, XCircle, Clock, Eye, DollarSign } from 'lucide-react';
+import { api } from '../../../services/api';
 
-const LoanApplicationsList: React.FC = () => {
-  const [applications, setApplications] = useState<LoanApplicationType[]>([]);
+interface LoanApplication {
+  id: number;
+  application_number: string;
+  customer_id: number;
+  loan_product_id: number;
+  servicing_account_id: number;
+  applied_amount: number;
+  approved_amount: number | null;
+  purpose: string;
+  tenure_months: number;
+  application_date: string;
+  status: 'pending' | 'approved' | 'rejected' | 'disbursed' | 'closed';
+  approved_by: number | null;
+  approved_date: string | null;
+  rejection_reason: string | null;
+  customer_number: string;
+  first_name: string;
+  last_name: string;
+  loan_product_name: string;
+  servicing_account: string;
+  approved_by_name: string | null;
+}
+
+interface LoanApplicationsListProps {
+  setCurrentPage: (page: string) => void;
+  setSelectedApplicationId?: (id: number) => void;
+}
+
+const LoanApplicationsList: React.FC<LoanApplicationsListProps> = ({ 
+  setCurrentPage, 
+  setSelectedApplicationId 
+}) => {
+  const [applications, setApplications] = useState<LoanApplication[]>([]);
+  const [filteredApplications, setFilteredApplications] = useState<LoanApplication[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedApplication, setSelectedApplication] = useState<LoanApplicationType | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    loadApplications();
+    fetchApplications();
   }, []);
 
-  const loadApplications = async () => {
+  useEffect(() => {
+    filterApplications();
+  }, [applications, searchTerm, statusFilter]);
+
+  const fetchApplications = async () => {
     try {
-      const data = await loanService.getLoanApplications();
-      setApplications(data);
+      const response = await api.get('/loan-applications');
+      setApplications(response.data.data);
     } catch (error) {
-      console.error('Error loading applications:', error);
+      console.error('Error fetching loan applications:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'approved': return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'rejected': return <XCircle className="h-5 w-5 text-red-500" />;
-      default: return <Clock className="h-5 w-5 text-yellow-500" />;
+  const filterApplications = () => {
+    let filtered = applications;
+
+    if (searchTerm) {
+      filtered = filtered.filter(app => 
+        app.application_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.customer_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(app => app.status === statusFilter);
+    }
+
+    setFilteredApplications(filtered);
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock },
+      approved: { color: 'bg-green-100 text-green-800', icon: CheckCircle },
+      rejected: { color: 'bg-red-100 text-red-800', icon: XCircle },
+      disbursed: { color: 'bg-blue-100 text-blue-800', icon: DollarSign },
+      closed: { color: 'bg-gray-100 text-gray-800', icon: CheckCircle }
+    };
+
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    const IconComponent = config.icon;
+
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
+        <IconComponent className="w-3 h-3 mr-1" />
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
+
+  const handleApprove = async (applicationId: number) => {
+    const amount = prompt('Enter approved amount:');
+    if (!amount) return;
+
+    try {
+      // This would require getting the current user ID from your auth context
+      const approvedBy = 1; // Replace with actual user ID from context
+      await api.put(`/loan-applications/${applicationId}/approve`, {
+        approved_amount: parseFloat(amount),
+        approved_by: approvedBy
+      });
+      await fetchApplications();
+      alert('Application approved successfully!');
+    } catch (error) {
+      console.error('Error approving application:', error);
+      alert('Failed to approve application');
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'under_review': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-yellow-100 text-yellow-800';
+  const handleReject = async (applicationId: number) => {
+    const reason = prompt('Enter rejection reason:');
+    if (!reason) return;
+
+    try {
+      const rejectedBy = 1; // Replace with actual user ID from context
+      await api.put(`/loan-applications/${applicationId}/reject`, {
+        rejection_reason: reason,
+        rejected_by: rejectedBy
+      });
+      await fetchApplications();
+      alert('Application rejected successfully!');
+    } catch (error) {
+      console.error('Error rejecting application:', error);
+      alert('Failed to reject application');
     }
   };
 
   if (loading) {
-    return <div className="flex justify-center p-8">Loading applications...</div>;
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-4">
-      {applications.map((application) => (
-        <motion.div
-          key={application.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
-        >
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <div className="flex items-center space-x-3 mb-2">
-                {getStatusIcon(application.status)}
-                <h4 className="text-lg font-semibold text-gray-900">
-                  {application.application_number}
-                </h4>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
-                  {application.status.replace('_', ' ')}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                <div>
-                  <strong>Customer:</strong>{' '}
-                  {application.customer ? 
-                    `${application.customer.first_name} ${application.customer.last_name}` : 
-                    'Loading...'
-                  }
-                </div>
-                <div>
-                  <strong>Amount:</strong> GHS {application.applied_amount.toLocaleString()}
-                </div>
-                <div>
-                  <strong>Applied:</strong> {new Date(application.applied_date).toLocaleDateString()}
-                </div>
-              </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Loan Applications</h1>
+          <p className="text-gray-600">Manage and review loan applications</p>
+        </div>
+      </div>
 
-              {application.purpose && (
-                <p className="text-sm text-gray-600 mt-2">
-                  <strong>Purpose:</strong> {application.purpose}
-                </p>
-              )}
-            </div>
-
-            <div className="flex space-x-2 ml-4">
-              <button
-                onClick={() => setSelectedApplication(application)}
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-                title="View Details"
-              >
-                <Eye className="h-4 w-4" />
-              </button>
-              
-              {application.status === 'pending' && (
-                <>
-                  <button
-                    onClick={() => {/* Handle approve */}}
-                    className="p-2 text-green-400 hover:text-green-600 rounded-lg hover:bg-green-50"
-                    title="Approve"
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => {/* Handle reject */}}
-                    className="p-2 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-                    title="Reject"
-                  >
-                    <XCircle className="h-4 w-4" />
-                  </button>
-                </>
-              )}
+      {/* Filters */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Search applications..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
             </div>
           </div>
-        </motion.div>
-      ))}
-
-      {applications.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <DollarSign className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-          <p>No loan applications found</p>
-        </div>
-      )}
-
-      {/* Application Detail Modal */}
-      {selectedApplication && (
-        <ApplicationDetailModal
-          application={selectedApplication}
-          onClose={() => setSelectedApplication(null)}
-          onStatusChange={loadApplications}
-        />
-      )}
-    </div>
-  );
-};
-
-// Application Detail Modal Component
-const ApplicationDetailModal: React.FC<{
-  application: LoanApplicationType;
-  onClose: () => void;
-  onStatusChange: () => void;
-}> = ({ application, onClose, onStatusChange }) => {
-  const [approving, setApproving] = useState(false);
-  const [rejecting, setRejecting] = useState(false);
-  const [approvalData, setApprovalData] = useState({
-    approved_amount: application.applied_amount.toString(),
-    interest_rate: '',
-    term_months: application.term_months?.toString() || ''
-  });
-
-  const handleApprove = async () => {
-    setApproving(true);
-    try {
-      await loanService.approveLoanApplication(application.id, {
-        approved_amount: Number(approvalData.approved_amount),
-        interest_rate: Number(approvalData.interest_rate),
-        term_months: Number(approvalData.term_months)
-      });
-      onStatusChange();
-      onClose();
-    } catch (error) {
-      console.error('Error approving application:', error);
-    } finally {
-      setApproving(false);
-    }
-  };
-
-  const handleReject = async () => {
-    setRejecting(true);
-    try {
-      await loanService.rejectLoanApplication(application.id, 'Rejected by loan officer');
-      onStatusChange();
-      onClose();
-    } catch (error) {
-      console.error('Error rejecting application:', error);
-    } finally {
-      setRejecting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold">Application Details</h3>
-        </div>
-        
-        <div className="p-6 space-y-4">
-          {/* Application details display */}
-          <div className="grid grid-cols-2 gap-4">
-            <div><strong>Application #:</strong> {application.application_number}</div>
-            <div><strong>Status:</strong> {application.status}</div>
-            <div><strong>Applied Amount:</strong> GHS {application.applied_amount.toLocaleString()}</div>
-            <div><strong>Applied Date:</strong> {new Date(application.applied_date).toLocaleDateString()}</div>
-          </div>
-
-          {application.status === 'pending' && (
-            <div className="border-t pt-4">
-              <h4 className="font-medium mb-3">Approve Application</h4>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Approved Amount</label>
-                  <input
-                    type="number"
-                    value={approvalData.approved_amount}
-                    onChange={(e) => setApprovalData({ ...approvalData, approved_amount: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={approvalData.interest_rate}
-                    onChange={(e) => setApprovalData({ ...approvalData, interest_rate: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Term (months)</label>
-                  <input
-                    type="number"
-                    value={approvalData.term_months}
-                    onChange={(e) => setApprovalData({ ...approvalData, term_months: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+          <div className="flex space-x-2">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              Close
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="disbursed">Disbursed</option>
+            </select>
+            <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2">
+              <Filter size={16} />
+              Filter
             </button>
-            {application.status === 'pending' && (
-              <>
-                <button
-                  onClick={handleReject}
-                  disabled={rejecting}
-                  className="px-4 py-2 text-red-700 bg-red-100 rounded-lg hover:bg-red-200 disabled:opacity-50"
-                >
-                  {rejecting ? 'Rejecting...' : 'Reject'}
-                </button>
-                <button
-                  onClick={handleApprove}
-                  disabled={approving}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                >
-                  {approving ? 'Approving...' : 'Approve'}
-                </button>
-              </>
-            )}
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Applications Table */}
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Application #</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tenure</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredApplications.map((application) => (
+                <tr key={application.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-medium text-gray-900">
+                      {application.application_number}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {application.first_name} {application.last_name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {application.customer_number}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    {application.loan_product_name}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    <div>
+                      <div>Applied: GHS {application.applied_amount.toLocaleString()}</div>
+                      {application.approved_amount && (
+                        <div className="text-green-600">
+                          Approved: GHS {application.approved_amount.toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    {application.tenure_months} months
+                  </td>
+                  <td className="px-6 py-4">
+                    {getStatusBadge(application.status)}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {new Date(application.application_date).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex space-x-2">
+                      {/* <button
+                        onClick={() => setSelectedApplicationId && setSelectedApplicationId(application.id)}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="View Details"
+                      >
+                        <Eye size={16} />
+                      </button> */}
+                      <button
+  onClick={() => {
+    setCurrentPage('application-details');
+    setSelectedApplicationId && setSelectedApplicationId(application.id);
+  }}
+  className="text-blue-600 hover:text-blue-900"
+  title="View Details"
+>
+  <Eye size={16} />
+</button>
+                      
+                      {application.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => handleApprove(application.id)}
+                            className="text-green-600 hover:text-green-900"
+                            title="Approve"
+                          >
+                            <CheckCircle size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleReject(application.id)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Reject"
+                          >
+                            <XCircle size={16} />
+                          </button>
+                        </>
+                      )}
+                      
+                      {/* {application.status === 'approved' && (
+                        <button
+                          onClick={() => {
+                            // Navigate to disbursement page
+                            setCurrentPage('loan-disbursement');
+                            setSelectedApplicationId && setSelectedApplicationId(application.id);
+                          }}
+                          className="text-purple-600 hover:text-purple-900"
+                          title="Disburse Loan"
+                        >
+                          <DollarSign size={16} />
+                        </button>
+                      )} */}
+
+                      {application.status === 'approved' && (
+  <button
+    onClick={() => {
+      setCurrentPage('loan-disbursement');
+      setSelectedApplicationId && setSelectedApplicationId(application.id);
+    }}
+    className="text-purple-600 hover:text-purple-900"
+    title="Disburse Loan"
+  >
+    <DollarSign size={16} />
+  </button>
+)}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredApplications.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No loan applications found</p>
+          </div>
+        )}
+      </div>
+    </motion.div>
   );
 };
 

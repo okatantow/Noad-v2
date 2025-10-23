@@ -334,7 +334,7 @@ const CashierScreen: React.FC = () => {
 
         {/* Right Column - Picture and Signature Tabs */}
         <div className="bg-white  border border-gray-200 p-6">
-          <div className="flex bg-blue-50 border-b border-gray-200 mb-4">
+          <div className="flex bg-blue-50  mb-4">
             <a
               onClick={() => setPreviewTab('picture')}
               className={`flex-1 py-2 px-3 text-center font-medium text-sm cursor-pointer ${
